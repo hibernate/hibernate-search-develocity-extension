@@ -144,8 +144,7 @@
         <url>https://github.com/hibernate/hibernate-search-develocity-extension</url>
         <connection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</connection>
         <developerConnection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <issueManagement>
         <system>GitHub</system>
