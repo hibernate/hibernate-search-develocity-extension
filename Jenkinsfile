@@ -18,7 +18,7 @@ pipeline {
         string(
                 name: 'RELEASE_VERSION',
                 defaultValue: '',
-                description: 'The version to be released, e.g. 1.0.0.',
+                description: 'The version to be released, e.g. 1.0.0.Final.',
                 trim: true
         )
         string(
