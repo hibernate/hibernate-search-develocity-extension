@@ -1,0 +1,249 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.hibernate.search.develocity</groupId>
+    <artifactId>hibernate-search-develocity-extension</artifactId>
+    <packaging>jar</packaging>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>Hibernate Search Develocity extension</name>
+    <description>A Maven extension to configure the Develocity build cache for the Hibernate Search project</description>
+    <url>https://github.com/hibernate/hibernate-search-develocity-extension</url>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <gradle-enterprise-maven-extension.version>1.20.1</gradle-enterprise-maven-extension.version>
+        <maven-core.version>3.9.6</maven-core.version>
+        <plexus-component.version>2.2.0</plexus-component.version>
+        <sisu-inject.version>0.3.5</sisu-inject.version>
+
+        <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.release>17</maven.compiler.release>
+        <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
+        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
+
+        <!-- Repository Deployment URLs -->
+        <ossrh.releases.repo.id>ossrh</ossrh.releases.repo.id>
+        <ossrh.releases.repo.url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</ossrh.releases.repo.url>
+        <ossrh.releases.repo.baseUrl>https://oss.sonatype.org/</ossrh.releases.repo.baseUrl>
+        <ossrh.snapshots.repo.id>ossrh</ossrh.snapshots.repo.id>
+        <ossrh.snapshots.repo.url>https://oss.sonatype.org/content/repositories/snapshots</ossrh.snapshots.repo.url>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven-core.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-component-annotations</artifactId>
+            <version>${plexus-component.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.gradle</groupId>
+            <artifactId>gradle-enterprise-maven-extension</artifactId>
+            <version>${gradle-enterprise-maven-extension.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.eclipse.sisu</groupId>
+                            <artifactId>org.eclipse.sisu.inject</artifactId>
+                            <version>${sisu-inject.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-component-metadata</artifactId>
+                <version>${plexus-component.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate-metadata</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>${maven-shade-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ComponentsXmlResourceTransformer" />
+                    </transformers>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>gsmet</id>
+            <name>Guillaume Smet</name>
+            <email>guillaume.smet@gmail.com</email>
+            <organization>Red Hat</organization>
+            <organizationUrl>http://www.redhat.com/</organizationUrl>
+        </developer>
+    </developers>
+
+    <ciManagement>
+        <system>Jenkins</system>
+        <url>http://ci.hibernate.org/</url>
+    </ciManagement>
+
+    <distributionManagement>
+        <repository>
+            <id>${ossrh.releases.repo.id}</id>
+            <name>OSSRH Releases Repository</name>
+            <url>${ossrh.releases.repo.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>${ossrh.snapshots.repo.id}</id>
+            <name>OSSRH Snapshots Repository</name>
+            <url>${ossrh.snapshots.repo.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <url>https://github.com/hibernate/hibernate-search-develocity-extension</url>
+        <connection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</connection>
+        <developerConnection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</developerConnection>
+      <tag>HEAD</tag>
+  </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/hibernate/hibernate-search-develocity-extension/issues</url>
+    </issueManagement>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${maven-release-plugin.version}</version>
+                        <configuration>
+                            <autoVersionSubmodules>true</autoVersionSubmodules>
+                            <tagNameFormat>@{project.version}</tagNameFormat>
+                            <localCheckout>true</localCheckout>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus-staging-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <nexusUrl>${ossrh.releases.repo.url}</nexusUrl>
+                            <serverId>${ossrh.releases.repo.id}</serverId>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                            <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>attach-test-sources</id>
+                                <goals>
+                                    <goal>test-jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <!--
+                        ## IMPORTANT ##
+                        In your ~/.m2/settings.xml you need to add and edit the following profile:
+                        <profile>
+                            <id>release</id>
+                            <properties>
+                                <gpg.useagent>false</gpg.useagent>
+                                <gpg.executable>/usr/local/Cellar/gnupg@1.4/1.4.23_1/bin/gpg1</gpg.executable> <- use gpg1 on Mac OS X <gpg.homedir>~/.gnupg</gpg.homedir>  <- Update to your own directory <gpg.passphrase>******</gpg.passphrase> <- Add your passphrase </properties>
+                        </profile>
+                         -->
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
