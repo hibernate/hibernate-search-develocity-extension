@@ -172,7 +172,7 @@
                         <version>${nexus-staging-maven-plugin.version}</version>
                         <extensions>true</extensions>
                         <configuration>
-                            <nexusUrl>${ossrh.releases.repo.url}</nexusUrl>
+                            <nexusUrl>${ossrh.releases.repo.baseUrl}</nexusUrl>
                             <serverId>${ossrh.releases.repo.id}</serverId>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                             <keepStagingRepositoryOnCloseRuleFailure>true</keepStagingRepositoryOnCloseRuleFailure>
