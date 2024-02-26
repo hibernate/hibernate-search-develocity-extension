@@ -234,10 +234,8 @@
                                     <goal>sign</goal>
                                 </goals>
                                 <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
+                                    <homedir>${env.RELEASE_GPG_HOMEDIR}</homedir>
+                                    <passphrase>${env.RELEASE_GPG_PASSPHRASE}</passphrase>
                                 </configuration>
                             </execution>
                         </executions>
