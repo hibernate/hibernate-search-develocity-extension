@@ -26,7 +26,7 @@ public class EnforcerConfiguredPlugin extends SimpleConfiguredPlugin {
             inputs.properties("skip", "fail", "failFast", "failIfNoRules", "rules", "rulesToExecute", "rulesToSkip",
                     "ignoreCache");
             dependsOnOs(inputs);
-            dependsOnJavaVersion(inputs);
+            dependsOnMavenJavaVersion(inputs);
 
             // TODO I'm not entirely sure Develocity considers the dependencies of the plugin in the inputs
             // typically in the case of the enforcer plugin, we add a dependency containing the rules
