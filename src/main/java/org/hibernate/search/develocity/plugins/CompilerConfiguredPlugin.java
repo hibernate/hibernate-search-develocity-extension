@@ -24,16 +24,7 @@ public class CompilerConfiguredPlugin extends SimpleConfiguredPlugin {
 
 	private static void configureCompile(MojoMetadataProvider.Context context) {
 		context.inputs( inputs -> {
-			String executable = context.getMojoExecution().getConfiguration().getAttribute( "executable" );
-			if ( executable == null ) {
-				dependsOnMavenJavaVersion( inputs );
-			}
-			else {
-				inputs.properties(
-						"_internal_executable_version",
-						JavaVersions.forExecutable( executable )
-				);
-			}
+			dependsOnConfigurableJavaExecutable( inputs, context, "executable", JavaVersions::forJavacExecutable );
 		} );
 	}
 }

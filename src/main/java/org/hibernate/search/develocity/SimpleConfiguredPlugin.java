@@ -3,13 +3,13 @@ package org.hibernate.search.develocity;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.project.MavenProject;
+import java.util.function.Function;
 
 import com.gradle.maven.extension.api.GradleEnterpriseApi;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.NormalizationProvider;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 
 
 public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
@@ -58,6 +58,20 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
 
     protected static void dependsOnMavenJavaVersion(MojoMetadataProvider.Context.Inputs inputs) {
         inputs.property("_internal_javaVersion", System.getProperty("java.version"));
+    }
+
+    protected static void dependsOnConfigurableJavaExecutable(MojoMetadataProvider.Context.Inputs inputs,
+            MojoMetadataProvider.Context context, String configChildName,
+            Function<String, String> executableToVersion) {
+        var configChild = context.getMojoExecution().getConfiguration().getChild( configChildName );
+        String javaExecutable = configChild == null ? null : configChild.getValue();
+        String javaVersion = executableToVersion.apply( javaExecutable );
+        inputs.property( "_internal_" + configChildName + "_java_version", javaVersion );
+        Log.info(
+                context.getMojoExecution().getPlugin().getArtifactId(),
+				"Using %s at path '%s'; resolved version: %s"
+						.formatted( configChildName, javaExecutable, javaVersion.replace( '\n', ' ' ).trim() )
+        );
     }
 
     @FunctionalInterface

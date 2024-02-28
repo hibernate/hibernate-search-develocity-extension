@@ -23,16 +23,7 @@ public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 
 	protected static void configureTest(MojoMetadataProvider.Context context) {
 		context.inputs( inputs -> {
-			String jvm = context.getMojoExecution().getConfiguration().getAttribute( "jvm" );
-			if ( jvm == null ) {
-				dependsOnMavenJavaVersion( inputs );
-			}
-			else {
-				inputs.properties(
-						"_internal_jvm_version",
-						JavaVersions.forExecutable( jvm )
-				);
-			}
+			dependsOnConfigurableJavaExecutable( inputs, context, "jvm", JavaVersions::forJavaExecutable );
 		} );
 	}
 }

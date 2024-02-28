@@ -28,7 +28,7 @@ public class HibernateSearchProjectBuildCacheGradleEnterpriseListener implements
     public void configure(GradleEnterpriseApi gradleEnterpriseApi, MavenSession mavenSession) throws Exception {
         gradleEnterpriseApi.getBuildScan().publishAlways();
         ((BuildScanApiInternal) gradleEnterpriseApi.getBuildScan()).publishIfAuthenticated();
-        BuildScanMetadata.addMetadataToBuildScan(gradleEnterpriseApi.getBuildScan());
+        BuildScanMetadata.addMetadataToBuildScan(gradleEnterpriseApi.getBuildScan(), mavenSession);
 
         Normalization.configureNormalization(gradleEnterpriseApi.getBuildCache());
 
