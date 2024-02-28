@@ -56,7 +56,7 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
             .property("_internal_osArch", System.getProperty("os.arch"));
     }
 
-    protected static void dependsOnJavaVersion(MojoMetadataProvider.Context.Inputs inputs) {
+    protected static void dependsOnMavenJavaVersion(MojoMetadataProvider.Context.Inputs inputs) {
         inputs.property("_internal_javaVersion", System.getProperty("java.version"));
     }
 
