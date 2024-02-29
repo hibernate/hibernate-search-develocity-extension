@@ -34,6 +34,8 @@ public final class JavaVersions {
 		return versionByExecutablePath.computeIfAbsent( executablePath, path -> {
 			ProcessBuilder builder = new ProcessBuilder();
 			builder.command( path, "-version" );
+			// If this is set, `java` will display it on startup and this will mess up the output.
+			builder.environment().remove("JAVA_TOOL_OPTIONS");
 			Process process;
 			try {
 				process = builder.start();
