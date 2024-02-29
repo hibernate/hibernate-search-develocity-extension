@@ -11,7 +11,25 @@ public final class JavaVersions {
 
 	private static final Map<String, String> versionByExecutablePath = new ConcurrentHashMap<>();
 
-	public static String forExecutable(String executablePath) {
+	public static String forJavaExecutable(String javaPath) {
+		if ( javaPath == null || javaPath.isBlank() ) {
+			return Runtime.version().toString();
+		}
+		return JavaVersions.forExecutable( javaPath );
+	}
+
+	public static String forJavacExecutable(String javacPath) {
+		if ( javacPath == null || javacPath.isBlank() ) {
+			return Runtime.version().toString();
+		}
+		return JavaVersions.forExecutable( javacPath )
+			   // This is necessary even if we have the version from javac above,
+			   // because javac -version only prints the major
+			   // and in particular doesn't print the EA/build number version for Early Access releases
+			   + JavaVersions.forExecutable( javacPath.replaceAll( "/javac$", "/java" ) );
+	}
+
+	private static String forExecutable(String executablePath) {
 		// Getting the version is slow, so we cache it
 		return versionByExecutablePath.computeIfAbsent( executablePath, path -> {
 			ProcessBuilder builder = new ProcessBuilder();
@@ -23,7 +41,10 @@ public final class JavaVersions {
 				if ( exitCode != 0 ) {
 					throw new IllegalStateException( executablePath + " exited with code " + exitCode );
 				}
-				return new String( process.getInputStream().readAllBytes(), StandardCharsets.UTF_8 );
+				// javac outputs the version on stdout
+				return new String( process.getInputStream().readAllBytes(), StandardCharsets.UTF_8 )
+					   // java outputs the version on stderr
+					   + new String( process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8 );
 			}
 			catch (IOException | InterruptedException | RuntimeException e) {
 				throw new IllegalStateException(

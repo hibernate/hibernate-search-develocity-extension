@@ -14,8 +14,7 @@ public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 	@Override
 	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
 		return Map.of(
-				"integration-test", FailsafeConfiguredPlugin::configureIntegrationTest,
-				"verify", FailsafeConfiguredPlugin::configureIntegrationTest
+				"integration-test", FailsafeConfiguredPlugin::configureIntegrationTest
 		);
 	}
 
