@@ -67,8 +67,7 @@ public final class BuildScanMetadata {
 		if ( !getBooleanProperty( project, "test.lucene.skip" ) ) {
 			buildScanApi.tag( "lucene" );
 		}
-		if ( !getBooleanProperty( project, "test.elasticsearch.skip" )
-			 && getBooleanProperty( project, "test.elasticsearch.run.image.pull" ) ) {
+		if ( !getBooleanProperty( project, "test.elasticsearch.skip" ) ) {
 			var distribution = getStringProperty( mavenSession, "test.elasticsearch.distribution" );
 			tagDockerfileShortImageRef( buildScanApi, mavenSession,
 					"search-backend/%s.Dockerfile".formatted( distribution ),
