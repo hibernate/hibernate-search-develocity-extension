@@ -8,6 +8,7 @@ import java.util.function.Function;
 import com.gradle.maven.extension.api.GradleEnterpriseApi;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.NormalizationProvider;
+import com.gradle.maven.extension.api.scan.BuildScanApi;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
@@ -23,7 +24,7 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
                     return;
                 }
 
-                Map<String, GoalMetadataProvider> goalMetadataProviders = Collections.unmodifiableMap(getGoalMetadataProviders());
+                Map<String, GoalMetadataProvider> goalMetadataProviders = Collections.unmodifiableMap(getGoalMetadataProviders(gradleEnterpriseApi.getBuildScan()));
 
                 Log.debug(getPluginName(), "Build cache is enabled. Configuring metadata providers.");
                 Log.debug(getPluginName(), "Configuring metadata for goals: " + goalMetadataProviders.keySet());
@@ -43,7 +44,7 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
         return true;
     }
 
-    protected abstract Map<String, GoalMetadataProvider> getGoalMetadataProviders();
+    protected abstract Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi);
 
     protected static void dependsOnGav(MojoMetadataProvider.Context.Inputs inputs, MojoMetadataProvider.Context context) {
         inputs.property("_internal_gav", context.getProject().getGroupId() + ":" + context.getProject().getArtifactId() + ":" + context.getProject().getVersion());
