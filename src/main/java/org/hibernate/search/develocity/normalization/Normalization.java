@@ -11,8 +11,7 @@ public final class Normalization {
         // System properties
         buildCacheApi.registerNormalizationProvider(
                 context -> context.configureSystemPropertiesNormalization(s -> {
-                    s.addIgnoredKeys("maven.repo.local", "maven.settings", "rootProject.directory");
-                    s.addIgnoredKeys("org.hibernate.search.integrationtest.project.root.directory");
+                    s.addIgnoredKeys("maven.repo.local", "maven.settings");
                 }));
 
         // Application.properties
