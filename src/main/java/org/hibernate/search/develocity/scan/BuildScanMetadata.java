@@ -35,7 +35,7 @@ public final class BuildScanMetadata {
 						"MAVEN_CMD_LINE_ARGS" )
 				: "";
 		if ( !isBlank( mavenCommandLine ) ) {
-			buildScanApi.value( "Maven command line", "mvn " + mavenCommandLine );
+			buildScanApi.value( "Maven command line", mavenCommandLine );
 		}
 
 		buildScanApi.tag( "hibernate-search" );

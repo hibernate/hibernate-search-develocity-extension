@@ -29,11 +29,6 @@ public class EnforcerConfiguredPlugin extends SimpleConfiguredPlugin {
             dependsOnOs(inputs);
             dependsOnMavenJavaVersion(inputs);
 
-            // TODO I'm not entirely sure Develocity considers the dependencies of the plugin in the inputs
-            // typically in the case of the enforcer plugin, we add a dependency containing the rules
-            // and this dependency should be added as an input if not
-            // see context.getMojoExecution().getPlugin().getDependencies()
-
             String dependencies = context.getProject().getArtifacts().stream()
                     .map(a -> a.getGroupId() + ":" + a.getArtifactId() + ":" + a.getVersion() + ":" + a.getClassifier())
                     .sorted()
