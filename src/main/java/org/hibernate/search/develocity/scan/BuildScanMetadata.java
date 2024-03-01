@@ -97,7 +97,7 @@ public final class BuildScanMetadata {
 				ref = ref.substring( 0, ref.lastIndexOf( ':' ) + 1 ) + versionOverride;
 			}
 			String shortImageRef = toShortImageRef( ref );
-			buildScanApi.tag( shortImageRef );
+			buildScanApi.tag( shortImageRef.replace( ':', '-' ) );
 			buildScanApi.value(
 					shortImageRef.substring( 0, shortImageRef.lastIndexOf( ':' ) ),
 					ref.substring( ref.lastIndexOf( ':' ) + 1 )
