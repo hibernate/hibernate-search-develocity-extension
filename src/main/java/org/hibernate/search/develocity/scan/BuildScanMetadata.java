@@ -22,6 +22,9 @@ public final class BuildScanMetadata {
 	private static final Pattern DOCKERFILE_FROM_PATTERN = Pattern.compile( "FROM (.+)" );
 	private static final Pattern CONTAINER_IMAGE_SHORT_PATTERN = Pattern.compile(
 			"^(?:.*/)?([^/]+:[^-.]+(?:[-.][^-.]+)?).*$" );
+	private static final Pattern JDK_VERSION_MAJOR_PATTERN = Pattern.compile(
+			"^.*version \"(\\d+).*$", Pattern.DOTALL );
+	private static final Pattern JDK_VERSION_MAJOR_FALLBACK_PATTERN = Pattern.compile( "(\\d+)\\." );
 
 	private BuildScanMetadata() {
 	}
@@ -40,12 +43,12 @@ public final class BuildScanMetadata {
 			tagIntegrations( buildScanApi, mavenSession, project );
 		}
 
-		recordExecutableVersion(
-				buildScanApi, mavenSession, "java-version.main.compiler", JavaVersions::forJavacExecutable );
-		recordExecutableVersion(
-				buildScanApi, mavenSession, "java-version.test.compiler", JavaVersions::forJavacExecutable );
-		recordExecutableVersion(
-				buildScanApi, mavenSession, "java-version.test.launcher", JavaVersions::forJavaExecutable );
+		recordExecutableVersion( buildScanApi, mavenSession, "java-version.main.compiler", false,
+				JavaVersions::forJavacExecutable );
+		recordExecutableVersion( buildScanApi, mavenSession, "java-version.test.compiler", false,
+				JavaVersions::forJavacExecutable );
+		recordExecutableVersion( buildScanApi, mavenSession, "java-version.test.launcher", true,
+				JavaVersions::forJavaExecutable );
 	}
 
 	private static void tagIntegrations(BuildScanApi buildScanApi, MavenSession mavenSession, MavenProject project) {
@@ -64,8 +67,7 @@ public final class BuildScanMetadata {
 		if ( !getBooleanProperty( project, "test.lucene.skip" ) ) {
 			buildScanApi.tag( "lucene" );
 		}
-		if ( !getBooleanProperty( project, "test.elasticsearch.skip" )
-			 && getBooleanProperty( project, "test.elasticsearch.run.image.pull" ) ) {
+		if ( !getBooleanProperty( project, "test.elasticsearch.skip" ) ) {
 			var distribution = getStringProperty( mavenSession, "test.elasticsearch.distribution" );
 			tagDockerfileShortImageRef( buildScanApi, mavenSession,
 					"search-backend/%s.Dockerfile".formatted( distribution ),
@@ -97,7 +99,7 @@ public final class BuildScanMetadata {
 				ref = ref.substring( 0, ref.lastIndexOf( ':' ) + 1 ) + versionOverride;
 			}
 			String shortImageRef = toShortImageRef( ref );
-			buildScanApi.tag( shortImageRef );
+			buildScanApi.tag( shortImageRef.replace( ':', '-' ) );
 			buildScanApi.value(
 					shortImageRef.substring( 0, shortImageRef.lastIndexOf( ':' ) ),
 					ref.substring( ref.lastIndexOf( ':' ) + 1 )
@@ -119,10 +121,27 @@ public final class BuildScanMetadata {
 	}
 
 	private static void recordExecutableVersion(BuildScanApi buildScanApi, MavenSession mavenSession,
-			String propertyName, Function<String, String> executableToVersion) {
+			String propertyName, boolean tag, Function<String, String> executableToVersion) {
 		String javaExecutable = getStringProperty( mavenSession, propertyName );
 		String javaVersion = executableToVersion.apply( javaExecutable );
+		if ( tag ) {
+			buildScanApi.tag( "jdk-%s".formatted( toJdkMajor( javaVersion ) ) );
+		}
 		buildScanApi.value( propertyName, "Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
+	}
+
+	static Object toJdkMajor(String fullVersionText) {
+		var matcher = JDK_VERSION_MAJOR_PATTERN.matcher( fullVersionText );
+		if ( matcher.matches() ) {
+			return matcher.group( 1 );
+		}
+		// As a fallback, try to match a simple version string
+		// such as the one coming from Runtime.version().toString()
+		matcher = JDK_VERSION_MAJOR_FALLBACK_PATTERN.matcher( fullVersionText );
+		if ( matcher.find() ) {
+			return matcher.group( 1 );
+		}
+		return "unknown";
 	}
 
 	private static String getStringProperty(MavenSession mavenSession, String key) {
