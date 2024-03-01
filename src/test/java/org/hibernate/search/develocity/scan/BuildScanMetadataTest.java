@@ -27,4 +27,28 @@ class BuildScanMetadataTest {
 		assertEquals( expected, BuildScanMetadata.toShortImageRef( ref ) );
 	}
 
+	@ParameterizedTest
+	@CsvSource(textBlock = """
+			17,'javac 17.0.7
+			openjdk version "17.0.7" 2023-04-18
+			OpenJDK Runtime Environment Temurin-17.0.7+7 (build 17.0.7+7)
+			OpenJDK 64-Bit Server VM Temurin-17.0.7+7 (build 17.0.7+7, mixed mode, sharing)'
+			11,'javac 17.0.7
+			openjdk version "11.0.7" 2023-04-18
+			OpenJDK Runtime Environment Temurin-17.0.7+7 (build 17.0.7+7)
+			OpenJDK 64-Bit Server VM Temurin-17.0.7+7 (build 17.0.7+7, mixed mode, sharing)'
+			17,'openjdk version "17.0.7" 2023-04-18
+			OpenJDK Runtime Environment Temurin-17.0.7+7 (build 17.0.7+7)
+			OpenJDK 64-Bit Server VM Temurin-17.0.7+7 (build 17.0.7+7, mixed mode, sharing)'
+			11,'openjdk version "11.0.7" 2023-04-18
+			OpenJDK Runtime Environment Temurin-17.0.7+7 (build 17.0.7+7)
+			OpenJDK 64-Bit Server VM Temurin-17.0.7+7 (build 17.0.7+7, mixed mode, sharing)'
+			17,17.0.7
+			11,11.0.7
+			17,foobar 17.0 something
+			""")
+	void toJdkMajor(String expected, String fullVersionText) {
+		assertEquals( expected, BuildScanMetadata.toJdkMajor( fullVersionText ) );
+	}
+
 }
