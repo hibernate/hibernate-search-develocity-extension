@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.hibernate.search.develocity.Log;
 
+import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
@@ -23,6 +24,8 @@ import org.apache.maven.shared.artifact.filter.PatternExcludesArtifactFilter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 public final class MavenConfigs {
+
+	public static final String BUILD_CACHE_JAVA_VERSION_EXACT = "build-cache.java-version.exact";
 
 	private MavenConfigs() {
 	}
@@ -105,5 +108,9 @@ public final class MavenConfigs {
 			return ignored -> true;
 		}
 		return new AndArtifactFilter( filters );
+	}
+
+	public static boolean cacheExactJavaVersion(MavenSession mavenSession) {
+		return Boolean.parseBoolean( (String) mavenSession.getUserProperties().get( BUILD_CACHE_JAVA_VERSION_EXACT ) );
 	}
 }

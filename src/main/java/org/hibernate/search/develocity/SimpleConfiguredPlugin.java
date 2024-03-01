@@ -5,6 +5,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
+import org.hibernate.search.develocity.util.JavaVersions;
+import org.hibernate.search.develocity.util.MavenConfigs;
+
 import com.gradle.maven.extension.api.GradleEnterpriseApi;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.NormalizationProvider;
@@ -66,9 +69,12 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
             Function<String, String> executableToVersion) {
         var configChild = context.getMojoExecution().getConfiguration().getChild( configChildName );
         String javaExecutable = configChild == null ? null : configChild.getValue();
-        String javaVersion = executableToVersion.apply( javaExecutable );
-        inputs.property( "_internal_" + configChildName + "_java_version", javaVersion );
-        Log.info(
+		String javaVersion = executableToVersion.apply( javaExecutable );
+		inputs.property( "_internal_" + configChildName + "_java_version",
+				MavenConfigs.cacheExactJavaVersion( context.getSession() )
+						? javaVersion
+						: JavaVersions.toJdkMajor( javaVersion, javaVersion ) );
+		Log.info(
                 context.getMojoExecution().getPlugin().getArtifactId(),
 				"Using %s at path '%s'; resolved version: %s"
 						.formatted( configChildName, javaExecutable, javaVersion.replace( '\n', ' ' ).trim() )

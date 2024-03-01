@@ -24,9 +24,6 @@ public final class BuildScanMetadata {
 	private static final Pattern DOCKERFILE_FROM_PATTERN = Pattern.compile( "FROM (.+)" );
 	private static final Pattern CONTAINER_IMAGE_SHORT_PATTERN = Pattern.compile(
 			"^(?:.*/)?([^/]+:[^-.]+(?:[-.][^-.]+)?).*$" );
-	private static final Pattern JDK_VERSION_MAJOR_PATTERN = Pattern.compile(
-			"^.*version \"(\\d+).*$", Pattern.DOTALL );
-	private static final Pattern JDK_VERSION_MAJOR_FALLBACK_PATTERN = Pattern.compile( "(\\d+)\\." );
 
 	private BuildScanMetadata() {
 	}
@@ -42,6 +39,9 @@ public final class BuildScanMetadata {
 		}
 
 		buildScanApi.tag( "hibernate-search" );
+
+		buildScanApi.value( MavenConfigs.BUILD_CACHE_JAVA_VERSION_EXACT,
+				String.valueOf( MavenConfigs.cacheExactJavaVersion( mavenSession ) ) );
 
 		recordExecutableVersion( buildScanApi, mavenSession, "java-version.main.compiler", false,
 				JavaVersions::forJavacExecutable );
@@ -153,23 +153,9 @@ public final class BuildScanMetadata {
 		String javaExecutable = MavenConfigs.getStringProperty( mavenSession, propertyName );
 		String javaVersion = executableToVersion.apply( javaExecutable );
 		if ( tag ) {
-			buildScanApi.tag( "jdk-%s".formatted( toJdkMajor( javaVersion ) ) );
+			buildScanApi.tag( "jdk-%s".formatted( JavaVersions.toJdkMajor( javaVersion, "unknown" ) ) );
 		}
 		buildScanApi.value( propertyName, "Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
-	}
-
-	static Object toJdkMajor(String fullVersionText) {
-		var matcher = JDK_VERSION_MAJOR_PATTERN.matcher( fullVersionText );
-		if ( matcher.matches() ) {
-			return matcher.group( 1 );
-		}
-		// As a fallback, try to match a simple version string
-		// such as the one coming from Runtime.version().toString()
-		matcher = JDK_VERSION_MAJOR_FALLBACK_PATTERN.matcher( fullVersionText );
-		if ( matcher.find() ) {
-			return matcher.group( 1 );
-		}
-		return "unknown";
 	}
 
 }
