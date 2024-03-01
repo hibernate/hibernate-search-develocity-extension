@@ -40,6 +40,15 @@ public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 							MojoMetadataProvider.Context.FileSet.NormalizationStrategy.RELATIVE_PATH );
 				} );
 			}
+
+			var repackagedJarPath = MavenConfigs.getFailsafeSystemProperty( context.getMojoExecution(),
+					"test.repackaged-jar-path" );
+			if ( repackagedJarPath != null ) {
+				inputs.fileSet( "repackaged-jar", repackagedJarPath, fileSet -> {
+					fileSet.normalizationStrategy(
+							MojoMetadataProvider.Context.FileSet.NormalizationStrategy.RELATIVE_PATH );
+				} );
+			}
 		} );
 		if ( !isSkipped( context.getMojoExecution() ) ) {
 			BuildScanMetadata.addFailsafeMetadataToBuildScan( buildScanApi, context.getSession(), context.getMojoExecution() );
