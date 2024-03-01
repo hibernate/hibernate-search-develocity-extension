@@ -20,8 +20,9 @@ import com.gradle.maven.extension.api.GradleEnterpriseListener;
 import com.gradle.maven.scan.extension.internal.api.BuildScanApiInternal;
 
 @SuppressWarnings("deprecation")
-@Component(role = GradleEnterpriseListener.class, hint = "hibernate-search-build-cache", description = "Configures the build cache of the Hibernate Search project")
-public class HibernateSearchProjectBuildCacheGradleEnterpriseListener implements GradleEnterpriseListener {
+@Component(role = GradleEnterpriseListener.class, hint = "hibernate-search-build-cache",
+        description = "Configures Develocity for the Hibernate Search project")
+public class HibernateSearchProjectDevelocityListener implements GradleEnterpriseListener {
 
 
     @Override
