@@ -4,8 +4,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 public final class JavaVersions {
+	private static final Pattern JDK_VERSION_MAJOR_PATTERN = Pattern.compile(
+			"^.*version \"(\\d+).*$", Pattern.DOTALL );
+	private static final Pattern JDK_VERSION_MAJOR_FALLBACK_PATTERN = Pattern.compile( "(\\d+)\\." );
+
 	private JavaVersions() {
 	}
 
@@ -53,5 +58,19 @@ public final class JavaVersions {
 						"Cannot guess java version for " + executablePath, e );
 			}
 		} );
+	}
+
+	public static String toJdkMajor(String fullVersionText, String defaultValue) {
+		var matcher = JDK_VERSION_MAJOR_PATTERN.matcher( fullVersionText );
+		if ( matcher.matches() ) {
+			return matcher.group( 1 );
+		}
+		// As a fallback, try to match a simple version string
+		// such as the one coming from Runtime.version().toString()
+		matcher = JDK_VERSION_MAJOR_FALLBACK_PATTERN.matcher( fullVersionText );
+		if ( matcher.find() ) {
+			return matcher.group( 1 );
+		}
+		return defaultValue;
 	}
 }

@@ -3,6 +3,7 @@ package org.hibernate.search.develocity.plugins;
 import java.io.File;
 import java.util.Map;
 
+import com.gradle.maven.extension.api.scan.BuildScanApi;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
@@ -18,7 +19,7 @@ public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
     }
 
     @Override
-    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
+    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
         return Map.of(
                 "check", ForbiddenApisConfiguredPlugin::configureCheck,
                 "testCheck", ForbiddenApisConfiguredPlugin::configureTestCheck);

@@ -7,6 +7,7 @@ import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.EmptyDirectoryHandling;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
+import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -16,7 +17,7 @@ public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
     }
 
     @Override
-    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
+    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
         return Map.of(
                 "format", FormatterConfiguredPlugin::configureFormat,
                 "validate", FormatterConfiguredPlugin::configureValidate);

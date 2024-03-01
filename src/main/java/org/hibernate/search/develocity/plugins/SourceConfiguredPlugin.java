@@ -7,6 +7,7 @@ import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
+import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 /**
  * TODO discuss this more in depth with Alexey, especially to make sure the output directory is not shared with other plugins.
@@ -19,7 +20,7 @@ public class SourceConfiguredPlugin extends SimpleConfiguredPlugin {
     }
 
     @Override
-    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
+    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
         return Map.of(
                 "jar-no-fork", SourceConfiguredPlugin::jarNoFork);
     }

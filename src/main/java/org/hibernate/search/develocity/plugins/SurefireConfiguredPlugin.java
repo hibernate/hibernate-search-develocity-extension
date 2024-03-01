@@ -6,6 +6,7 @@ import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 import org.hibernate.search.develocity.util.JavaVersions;
 
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
+import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -15,7 +16,7 @@ public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 	}
 
 	@Override
-	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
+	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
 		return Map.of(
 				"test", SurefireConfiguredPlugin::configureTest
 		);
