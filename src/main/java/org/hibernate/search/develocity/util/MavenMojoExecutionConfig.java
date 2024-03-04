@@ -9,7 +9,9 @@
 package org.hibernate.search.develocity.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.search.develocity.Log;
 
@@ -21,6 +23,7 @@ import org.apache.maven.shared.artifact.filter.PatternExcludesArtifactFilter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
 public final class MavenMojoExecutionConfig {
+	public static final String SUREFIRE_ENVIRONMENT_VARIABLES = "environmentVariables";
 	private final MojoExecution mojoExecution;
 
 	public MavenMojoExecutionConfig(MojoExecution mojoExecution) {
@@ -69,6 +72,19 @@ public final class MavenMojoExecutionConfig {
 			return null;
 		}
 		return child.getValue();
+	}
+
+	public Map<String, String> getSurefireEnvironmentVariables() {
+		var environmentVariables = mojoExecution.getConfiguration()
+				.getChild( SUREFIRE_ENVIRONMENT_VARIABLES );
+		if ( environmentVariables == null ) {
+			return Map.of();
+		}
+		Map<String, String> result = new LinkedHashMap<>();
+		for ( Xpp3Dom child : environmentVariables.getChildren() ) {
+			result.put( child.getName(), child.getValue() );
+		}
+		return result;
 	}
 
 	public ArtifactFilter getFailsafeClasspathFilter() {

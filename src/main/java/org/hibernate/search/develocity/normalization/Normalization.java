@@ -8,15 +8,15 @@ public final class Normalization {
     }
 
     public static void configureNormalization(BuildCacheApi buildCacheApi) {
-        // System properties
-        buildCacheApi.registerNormalizationProvider(
-                context -> context.configureSystemPropertiesNormalization(s -> {
-                    s.addIgnoredKeys("maven.repo.local", "maven.settings");
-                }));
+		buildCacheApi.registerNormalizationProvider(
+				context -> context.configureSystemPropertiesNormalization( s -> {
+					s.addIgnoredKeys( "maven.repo.local", "maven.settings" );
+				} ) );
 
-        // Application.properties
-        buildCacheApi.registerNormalizationProvider(
-                context -> context.configureRuntimeClasspathNormalization(c -> {
-                }));
+		buildCacheApi.registerNormalizationProvider(
+				context -> context.configureRuntimeClasspathNormalization( c -> {
+					// Lucene indexes
+					c.addIgnoredFiles( "**/target/**/test-indexes" );
+				} ) );
     }
 }
