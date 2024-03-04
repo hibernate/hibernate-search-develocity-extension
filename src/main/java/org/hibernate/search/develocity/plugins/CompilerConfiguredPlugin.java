@@ -2,11 +2,9 @@ package org.hibernate.search.develocity.plugins;
 
 import java.util.Map;
 
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 import org.hibernate.search.develocity.util.JavaVersions;
-
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
-import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 public class CompilerConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -16,16 +14,19 @@ public class CompilerConfiguredPlugin extends SimpleConfiguredPlugin {
 	}
 
 	@Override
-	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
+	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
 		return Map.of(
 				"compile", CompilerConfiguredPlugin::configureCompile,
 				"testCompile", CompilerConfiguredPlugin::configureCompile
 		);
 	}
 
-	private static void configureCompile(MojoMetadataProvider.Context context) {
-		context.inputs( inputs -> {
-			dependsOnConfigurableJavaExecutable( inputs, context, "executable", JavaVersions::forJavacExecutable );
+	private static void configureCompile(GoalMetadataProvider.Context context) {
+		var metadata = context.metadata();
+		metadata.inputs( inputs -> {
+			dependsOnConfigurableJavaExecutable( inputs, context, "executable",
+					context.configuration().getBoolean( "skip" ),
+					JavaVersions::forJavacExecutable );
 		} );
 	}
 }

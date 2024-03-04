@@ -6,18 +6,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.Log;
 import org.hibernate.search.develocity.util.JavaVersions;
-import org.hibernate.search.develocity.util.MavenConfigs;
+import org.hibernate.search.develocity.util.MavenProperties;
 import org.hibernate.search.develocity.util.Strings;
 
 import com.gradle.maven.extension.api.scan.BuildScanApi;
-
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.MojoExecution;
 
 public final class BuildScanMetadata {
 
@@ -28,7 +25,7 @@ public final class BuildScanMetadata {
 	private BuildScanMetadata() {
 	}
 
-	public static void addMetadataToBuildScan(BuildScanApi buildScanApi, MavenSession mavenSession) {
+	public static void addMainMetadata(BuildScanApi buildScanApi) {
 		// Add mvn command line
 		final String mavenCommandLine = System.getenv( "MAVEN_CMD_LINE_ARGS" ) != null
 				? "mvn " + System.getenv(
@@ -39,25 +36,31 @@ public final class BuildScanMetadata {
 		}
 
 		buildScanApi.tag( "hibernate-search" );
-
-		buildScanApi.value( MavenConfigs.BUILD_CACHE_JAVA_VERSION_EXACT,
-				String.valueOf( MavenConfigs.cacheExactJavaVersion( mavenSession ) ) );
-
-		recordExecutableVersion( buildScanApi, mavenSession, "java-version.main.compiler", false,
-				JavaVersions::forJavacExecutable );
-		recordExecutableVersion( buildScanApi, mavenSession, "java-version.test.compiler", false,
-				JavaVersions::forJavacExecutable );
-		recordExecutableVersion( buildScanApi, mavenSession, "java-version.test.launcher", true,
-				JavaVersions::forJavaExecutable );
 	}
 
-	public static void addFailsafeMetadataToBuildScan(BuildScanApi buildScanApi, MavenSession mavenSession,
-			MojoExecution mojoExecution) {
-		var project = mavenSession.getCurrentProject();
+	public static void addJavaExecutableVersion(GoalMetadataProvider.Context context,
+			String javaExecutable, String javaVersion,
+			boolean canCacheExactVersion) {
+		context.buildScanDeduplicatedValue( MavenProperties.BUILD_CACHE_JAVA_VERSION_EXACT,
+				String.valueOf( canCacheExactVersion ) );
+		var buildScanApi = context.buildScan();
+		String plugin = context.metadata().getMojoExecution().getArtifactId();
+		if ( plugin.equals( "maven-surefire-plugin" ) || plugin.equals( "maven-failsafe-plugin" ) ) {
+			buildScanApi.tag( "jdk-%s".formatted( JavaVersions.toJdkMajor( javaVersion, "unknown" ) ) );
+		}
+
+		String goal = context.metadata().getMojoExecution().getGoal();
+		context.buildScanDeduplicatedValue( "%s.%s.jdk".formatted( plugin, goal ), "Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
+	}
+
+	public static void addFailsafeMetadata(GoalMetadataProvider.Context context) {
+		var buildScanApi = context.buildScan();
+
+		var project = context.metadata().getProject();
 		boolean dependsOnOrm = false;
 		boolean dependsOnLucene = false;
 		boolean dependsOnElasticsearch = false;
-		var artifactFilter = MavenConfigs.getFailsafeClasspathFilter( mojoExecution );
+		var artifactFilter = context.configuration().getFailsafeClasspathFilter();
 		for ( var dependency : project.getArtifacts() ) {
 			if ( !artifactFilter.include( dependency ) ) {
 				continue;
@@ -69,44 +72,46 @@ public final class BuildScanMetadata {
 		}
 
 		if ( dependsOnOrm ) {
-			var dbKind = MavenConfigs.getStringProperty( mavenSession, "test.database.run.kind" );
+			var dbKind = context.properties().getString( "test.database.run.kind" );
 			if ( !Strings.isBlank( dbKind ) ) {
 				if ( dbKind.equals( "h2" ) ) {
 					// H2 doesn't use containers
 					buildScanApi.tag( "h2" );
 				}
 				else {
-					tagDockerfileShortImageRef( buildScanApi, mavenSession,
+					addDockerfileShortImageRef( context,
 							"database/%s.Dockerfile".formatted( dbKind ), null );
 				}
 			}
 		}
 
-		String explicitBackend =
-				MavenConfigs.getFailsafeSystemProperty( mojoExecution, "org.hibernate.search.integrationtest.backend.type" );
+		String explicitBackend = context.configuration()
+				.getFailsafeSystemProperty( "org.hibernate.search.integrationtest.backend.type" );
 		if ( Strings.isBlank( explicitBackend ) ) {
 			explicitBackend = null;
 		}
 
 		if ( dependsOnLucene
 				&& ( explicitBackend == null || "lucene".equals( explicitBackend ) )
-				&& !MavenConfigs.getBooleanProperty( project, "test.lucene.skip" ) ) {
+				&& !context.properties().getBoolean( "test.lucene.skip" ) ) {
 			buildScanApi.tag( "lucene" );
 		}
 
 		if ( dependsOnElasticsearch
 				&& ( explicitBackend == null || "elasticsearch".equals( explicitBackend ) )
-				&& !MavenConfigs.getBooleanProperty( project, "test.elasticsearch.skip" ) ) {
-			var distribution = MavenConfigs.getStringProperty( mavenSession, "test.elasticsearch.distribution" );
-			tagDockerfileShortImageRef( buildScanApi, mavenSession,
+				&& !context.properties().getBoolean( "test.elasticsearch.skip" ) ) {
+			var distribution = context.properties().getString( "test.elasticsearch.distribution" );
+			addDockerfileShortImageRef( context,
 					"search-backend/%s.Dockerfile".formatted( distribution ),
-					MavenConfigs.getStringProperty( mavenSession, "test.elasticsearch.version" ) );
+					context.properties().getString( "test.elasticsearch.version" ) );
 		}
 	}
 
-	private static void tagDockerfileShortImageRef(BuildScanApi buildScanApi, MavenSession mavenSession,
+	private static void addDockerfileShortImageRef(GoalMetadataProvider.Context context,
 			String dockerfileRelativePath, String versionOverride) {
-		var path = Path.of( mavenSession.getExecutionRootDirectory(), "build/container", dockerfileRelativePath );
+		var buildScanApi = context.buildScan();
+		var path = Path.of( context.metadata().getSession().getExecutionRootDirectory(),
+				"build/container", dockerfileRelativePath );
 		try {
 			String ref;
 			try ( var stream = Files.lines( path ) ) {
@@ -146,16 +151,6 @@ public final class BuildScanMetadata {
 		else {
 			return ref;
 		}
-	}
-
-	private static void recordExecutableVersion(BuildScanApi buildScanApi, MavenSession mavenSession,
-			String propertyName, boolean tag, Function<String, String> executableToVersion) {
-		String javaExecutable = MavenConfigs.getStringProperty( mavenSession, propertyName );
-		String javaVersion = executableToVersion.apply( javaExecutable );
-		if ( tag ) {
-			buildScanApi.tag( "jdk-%s".formatted( JavaVersions.toJdkMajor( javaVersion, "unknown" ) ) );
-		}
-		buildScanApi.value( propertyName, "Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
 	}
 
 }

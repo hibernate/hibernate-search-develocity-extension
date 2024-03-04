@@ -13,40 +13,25 @@ import java.util.List;
 
 import org.hibernate.search.develocity.Log;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import org.apache.maven.artifact.resolver.filter.AndArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ArtifactFilter;
 import org.apache.maven.artifact.resolver.filter.ScopeArtifactFilter;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.MojoExecution;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.shared.artifact.filter.PatternExcludesArtifactFilter;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 
-public final class MavenConfigs {
+public final class MavenMojoExecutionConfig {
+	private final MojoExecution mojoExecution;
 
-	public static final String BUILD_CACHE_JAVA_VERSION_EXACT = "build-cache.java-version.exact";
-
-	private MavenConfigs() {
+	public MavenMojoExecutionConfig(MojoExecution mojoExecution) {
+		this.mojoExecution = mojoExecution;
 	}
 
-	public static String getStringProperty(MavenSession mavenSession, String key) {
-		return getStringProperty( mavenSession.getResult().getProject(), key );
+	public Boolean getBoolean(String key) {
+		return Boolean.parseBoolean( getString( key ) );
 	}
 
-	public static String getStringProperty(MavenProject project, String key) {
-		return (String) project.getProperties().get( key );
-	}
-
-	public static boolean getBooleanProperty(MavenProject project, String key) {
-		return Boolean.parseBoolean( getStringProperty( project, key ) );
-	}
-
-	public static boolean getBooleanConfig(MojoExecution mojoExecution, String key) {
-		return Boolean.parseBoolean( getStringConfig( mojoExecution, key ) );
-	}
-
-	public static String getStringConfig(MojoExecution mojoExecution, String key) {
+	public String getString(String key) {
 		var configElement = mojoExecution.getConfiguration().getChild( key );
 		if ( configElement == null ) {
 			return null;
@@ -58,7 +43,7 @@ public final class MavenConfigs {
 		return value.trim();
 	}
 
-	public static List<String> getStringListConfig(MojoExecution mojoExecution, String key) {
+	public List<String> getStringList(String key) {
 		var configElement = mojoExecution.getConfiguration().getChild( key );
 		if ( configElement == null ) {
 			return List.of();
@@ -73,8 +58,8 @@ public final class MavenConfigs {
 		return children;
 	}
 
-	public static String getFailsafeSystemProperty(MojoExecution failsafeIntegrationTestExecution, String key) {
-		var systemPropertyVariables = failsafeIntegrationTestExecution.getConfiguration()
+	public String getFailsafeSystemProperty(String key) {
+		var systemPropertyVariables = mojoExecution.getConfiguration()
 				.getChild( "systemPropertyVariables" );
 		if ( systemPropertyVariables == null ) {
 			return null;
@@ -86,13 +71,11 @@ public final class MavenConfigs {
 		return child.getValue();
 	}
 
-	public static ArtifactFilter getFailsafeClasspathFilter(MojoExecution mojoExecution) {
+	public ArtifactFilter getFailsafeClasspathFilter() {
 		List<ArtifactFilter> filters = new ArrayList<>();
 		try {
-			String classpathDependencyScopeExclude = getStringConfig(
-					mojoExecution, "classpathDependencyScopeExclude" );
-			List<String> classpathDependencyExcludes = getStringListConfig(
-					mojoExecution, "classpathDependencyExcludes" );
+			String classpathDependencyScopeExclude = getString( "classpathDependencyScopeExclude" );
+			List<String> classpathDependencyExcludes = getStringList( "classpathDependencyExcludes" );
 			if ( classpathDependencyScopeExclude != null && !classpathDependencyScopeExclude.isEmpty() ) {
 				var scopeIncludeFilter = new ScopeArtifactFilter( classpathDependencyScopeExclude );
 				filters.add( artifact -> !scopeIncludeFilter.include( artifact ) );
@@ -108,9 +91,5 @@ public final class MavenConfigs {
 			return ignored -> true;
 		}
 		return new AndArtifactFilter( filters );
-	}
-
-	public static boolean cacheExactJavaVersion(MavenSession mavenSession) {
-		return Boolean.parseBoolean( (String) mavenSession.getUserProperties().get( BUILD_CACHE_JAVA_VERSION_EXACT ) );
 	}
 }
