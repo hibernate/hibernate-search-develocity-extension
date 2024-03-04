@@ -3,13 +3,13 @@ package org.hibernate.search.develocity.plugins;
 import java.io.File;
 import java.util.Map;
 
-import com.gradle.maven.extension.api.scan.BuildScanApi;
-import org.eclipse.aether.artifact.Artifact;
-import org.eclipse.aether.artifact.DefaultArtifact;
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
+
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
 
 public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -19,14 +19,16 @@ public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
     }
 
     @Override
-    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
+    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
         return Map.of(
                 "check", ForbiddenApisConfiguredPlugin::configureCheck,
                 "testCheck", ForbiddenApisConfiguredPlugin::configureTestCheck);
     }
 
-    private static void configureCheck(MojoMetadataProvider.Context context) {
-        context.inputs(inputs -> {
+    private static void configureCheck(GoalMetadataProvider.Context context) {
+        var metadata = context.metadata();
+
+        metadata.inputs(inputs -> {
             dependsOnGav(inputs, context);
             inputs.properties("signatures", "bundledSignatures", "failOnUnsupportedJava", "failOnMissingClasses",
                     "failOnUnresolvableSignatures", "ignoreSignaturesOfMissingClasses",
@@ -46,27 +48,29 @@ public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
             inputs.ignore("signaturesArtifacts", "projectRepos", "repoSession");
         });
 
-        context.outputs(outputs -> {
+        metadata.outputs(outputs -> {
             outputs.cacheable("If the inputs and signatures are identical, we should have the same output");
         });
     }
 
-    private static void configureTestCheck(MojoMetadataProvider.Context context) {
+    private static void configureTestCheck(GoalMetadataProvider.Context context) {
+        var metadata = context.metadata();
+
         configureCheck(context);
 
-        context.inputs(inputs -> {
+        metadata.inputs(inputs -> {
             inputs.properties("testTargetVersion", "testReleaseVersion");
         });
     }
 
-    private static File resolveHibernateSearchBuildConfigArtifact(MojoMetadataProvider.Context context) {
+    private static File resolveHibernateSearchBuildConfigArtifact(GoalMetadataProvider.Context context) {
         Artifact hibernateSearchBuildConfigArtifact = new DefaultArtifact("org.hibernate.search",
                 "hibernate-search-build-config", "jar",
-                context.getProject().getVersion());
-        File hibernateSearchBuildConfigArtifactFile = context.getSession().getRepositorySession().getWorkspaceReader()
+                context.metadata().getProject().getVersion());
+        File hibernateSearchBuildConfigArtifactFile = context.metadata().getSession().getRepositorySession().getWorkspaceReader()
                 .findArtifact(hibernateSearchBuildConfigArtifact);
         if (hibernateSearchBuildConfigArtifactFile == null) {
-            hibernateSearchBuildConfigArtifactFile = new File(context.getSession().getRepositorySession()
+            hibernateSearchBuildConfigArtifactFile = new File(context.metadata().getSession().getRepositorySession()
                     .getLocalRepositoryManager().getPathForLocalArtifact(hibernateSearchBuildConfigArtifact));
         }
         return hibernateSearchBuildConfigArtifactFile;

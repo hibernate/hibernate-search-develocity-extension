@@ -2,13 +2,10 @@ package org.hibernate.search.develocity.plugins;
 
 import java.util.Map;
 
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.scan.BuildScanMetadata;
-import org.hibernate.search.develocity.util.MavenConfigs;
 
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
-import com.gradle.maven.extension.api.scan.BuildScanApi;
-
-import org.apache.maven.plugin.MojoExecution;
 
 public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 
@@ -18,22 +15,22 @@ public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 	}
 
 	@Override
-	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
+	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
 		return Map.of(
-				"integration-test", context -> configureIntegrationTest( context, buildScanApi )
+				"integration-test", this::configureIntegrationTest
 		);
 	}
 
-	private static void configureIntegrationTest(MojoMetadataProvider.Context context, BuildScanApi buildScanApi) {
+	private void configureIntegrationTest(GoalMetadataProvider.Context context) {
 		configureTest( context );
-		context.inputs( inputs -> {
+		context.metadata().inputs( inputs -> {
 			// We try to be smart about which container is used for the build scan,
 			// because an error would be of little consequence there,
 			// but here it could lead to missing important regressions.
 			// So we just consider all Dockerfiles are used in all integration tests,
 			// and invalidate all integration test caches as soon as one Dockerfile changes.
-			var containersPath = MavenConfigs.getFailsafeSystemProperty( context.getMojoExecution(),
-					"org.hibernate.search.integrationtest.container.directory" );
+			var containersPath = context.configuration()
+					.getFailsafeSystemProperty( "org.hibernate.search.integrationtest.container.directory" );
 			if ( containersPath != null ) {
 				inputs.fileSet( "containers", containersPath, fileSet -> {
 					fileSet.normalizationStrategy(
@@ -41,8 +38,8 @@ public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 				} );
 			}
 
-			var repackagedJarPath = MavenConfigs.getFailsafeSystemProperty( context.getMojoExecution(),
-					"test.repackaged-jar-path" );
+			var repackagedJarPath = context.configuration()
+					.getFailsafeSystemProperty( "test.repackaged-jar-path" );
 			if ( repackagedJarPath != null ) {
 				inputs.fileSet( "repackaged-jar", repackagedJarPath, fileSet -> {
 					fileSet.normalizationStrategy(
@@ -50,15 +47,22 @@ public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 				} );
 			}
 		} );
-		if ( !isSkipped( context.getMojoExecution() ) ) {
-			BuildScanMetadata.addFailsafeMetadataToBuildScan( buildScanApi, context.getSession(), context.getMojoExecution() );
+
+		if ( !isSkipped( context ) ) {
+			BuildScanMetadata.addFailsafeMetadata( context );
 		}
 	}
 
-	private static boolean isSkipped(MojoExecution mojoExecution) {
-		return MavenConfigs.getBooleanConfig( mojoExecution, "skip" )
-				|| MavenConfigs.getBooleanConfig( mojoExecution, "skipITs" )
-				|| MavenConfigs.getBooleanConfig( mojoExecution, "skipExec" );
+	@Override
+	protected boolean isSkipped(GoalMetadataProvider.Context context) {
+		return context.configuration().getBoolean( "skip" )
+			   || context.properties().getBoolean( "maven.test.skip" )
+			   || context.configuration().getBoolean( "skipITs" )
+			   || context.properties().getBoolean( "skipITs" )
+			   || context.configuration().getBoolean( "skipTests" )
+			   || context.properties().getBoolean( "skipTests" )
+			   || context.configuration().getBoolean( "skipExec" )
+			   || context.properties().getBoolean( "maven.test.skip.exec" );
 	}
 
 }

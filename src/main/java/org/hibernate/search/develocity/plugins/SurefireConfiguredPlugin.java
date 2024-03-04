@@ -2,11 +2,9 @@ package org.hibernate.search.develocity.plugins;
 
 import java.util.Map;
 
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 import org.hibernate.search.develocity.util.JavaVersions;
-
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
-import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -16,15 +14,26 @@ public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 	}
 
 	@Override
-	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
+	protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
 		return Map.of(
-				"test", SurefireConfiguredPlugin::configureTest
+				"test", this::configureTest
 		);
 	}
 
-	protected static void configureTest(MojoMetadataProvider.Context context) {
-		context.inputs( inputs -> {
-			dependsOnConfigurableJavaExecutable( inputs, context, "jvm", JavaVersions::forJavaExecutable );
+	protected void configureTest(GoalMetadataProvider.Context context) {
+		var metadata = context.metadata();
+		metadata.inputs( inputs -> {
+			dependsOnConfigurableJavaExecutable( inputs, context, "jvm", isSkipped( context ),
+					JavaVersions::forJavaExecutable );
 		} );
+	}
+
+	protected boolean isSkipped(GoalMetadataProvider.Context context) {
+		return context.configuration().getBoolean( "skip" )
+			   || context.properties().getBoolean( "maven.test.skip" )
+			   || context.configuration().getBoolean( "skipTests" )
+			   || context.properties().getBoolean( "skipTests" )
+			   || context.configuration().getBoolean( "skipExec" )
+			   || context.properties().getBoolean( "maven.test.skip.exec" );
 	}
 }

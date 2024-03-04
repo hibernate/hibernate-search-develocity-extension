@@ -26,10 +26,11 @@ public class HibernateSearchProjectDevelocityListener implements GradleEnterpris
 
 
     @Override
-    public void configure(GradleEnterpriseApi gradleEnterpriseApi, MavenSession mavenSession) throws Exception {
+    public void configure(GradleEnterpriseApi gradleEnterpriseApi, MavenSession mavenSession) {
         gradleEnterpriseApi.getBuildScan().publishAlways();
         ((BuildScanApiInternal) gradleEnterpriseApi.getBuildScan()).publishIfAuthenticated();
-        BuildScanMetadata.addMetadataToBuildScan(gradleEnterpriseApi.getBuildScan(), mavenSession);
+
+        BuildScanMetadata.addMainMetadata(gradleEnterpriseApi.getBuildScan());
 
         Normalization.configureNormalization(gradleEnterpriseApi.getBuildCache());
 

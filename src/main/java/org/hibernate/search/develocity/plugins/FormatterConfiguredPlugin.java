@@ -2,12 +2,11 @@ package org.hibernate.search.develocity.plugins;
 
 import java.util.Map;
 
+import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.EmptyDirectoryHandling;
 import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
-import com.gradle.maven.extension.api.scan.BuildScanApi;
 
 public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
 
@@ -17,7 +16,7 @@ public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
     }
 
     @Override
-    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders(BuildScanApi buildScanApi) {
+    protected Map<String, GoalMetadataProvider> getGoalMetadataProviders() {
         return Map.of(
                 "format", FormatterConfiguredPlugin::configureFormat,
                 "validate", FormatterConfiguredPlugin::configureValidate);
@@ -25,8 +24,10 @@ public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
 
     // This is for FormatterMojo, extended by ValidateMojo
     // See https://github.com/revelc/formatter-maven-plugin/tree/main/src/main/java/net/revelc/code/formatter
-    private static void configureCommon(MojoMetadataProvider.Context context) {
-        context.inputs(inputs -> {
+    private static void configureCommon(GoalMetadataProvider.Context context) {
+        var metadata = context.metadata();
+
+        metadata.inputs(inputs -> {
             dependsOnGav(inputs, context);
 
             inputs.properties("includes", "excludes", "compilerSource", "compilerCompliance", "compilerTargetPlatform", "lineEnding", "configFile",
@@ -44,21 +45,25 @@ public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
             inputs.ignore("project", "targetDirectory", "basedir", "cachedir");
         });
 
-        context.nested("encoding", c -> c.inputs(inputs -> inputs.properties("displayName")));
+        metadata.nested("encoding", c -> c.inputs(inputs -> inputs.properties("displayName")));
     }
 
-    private static void configureFormat(MojoMetadataProvider.Context context) {
+    private static void configureFormat(GoalMetadataProvider.Context context) {
+        var metadata = context.metadata();
+
         configureCommon(context);
 
-        context.outputs(outputs -> {
+        metadata.outputs(outputs -> {
             outputs.cacheable("If the inputs and dependencies are identical, we should have the same output");
         });
     }
 
-    private static void configureValidate(MojoMetadataProvider.Context context) {
+    private static void configureValidate(GoalMetadataProvider.Context context) {
+        var metadata = context.metadata();
+
         configureCommon(context);
 
-		context.inputs( inputs -> {
+        metadata.inputs( inputs -> {
 			inputs.properties( "aggregator", "executionRoot");
 			// We already depend on the GAV.
 			inputs.ignore( "mojoGroupId", "mojoArtifactId", "mojoVersion" );
@@ -66,7 +71,7 @@ public class FormatterConfiguredPlugin extends SimpleConfiguredPlugin {
 			inputs.ignore( "mavenProject", "mavenSession" );
 		} );
 
-        context.outputs(outputs -> {
+        metadata.outputs(outputs -> {
             outputs.cacheable("If the inputs and dependencies are identical, validation should give the same result (success/failure)");
         });
     }
