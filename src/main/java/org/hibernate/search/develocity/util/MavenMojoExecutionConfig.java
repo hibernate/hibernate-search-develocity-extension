@@ -9,7 +9,9 @@
 package org.hibernate.search.develocity.util;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.hibernate.search.develocity.Log;
 
@@ -56,6 +58,19 @@ public final class MavenMojoExecutionConfig {
 			}
 		}
 		return children;
+	}
+
+	public Map<String, String> getStringMap(String key) {
+		var configElement = mojoExecution.getConfiguration()
+				.getChild( key );
+		if ( configElement == null ) {
+			return Map.of();
+		}
+		Map<String, String> result = new LinkedHashMap<>();
+		for ( Xpp3Dom configElementChild : configElement.getChildren() ) {
+			result.put( configElementChild.getName(), configElementChild.getValue() );
+		}
+		return result;
 	}
 
 	public String getFailsafeSystemProperty(String key) {
