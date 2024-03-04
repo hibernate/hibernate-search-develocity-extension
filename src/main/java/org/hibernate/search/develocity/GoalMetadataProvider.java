@@ -8,6 +8,8 @@
  */
 package org.hibernate.search.develocity;
 
+import java.util.function.Consumer;
+
 import org.hibernate.search.develocity.util.MavenMojoExecutionConfig;
 import org.hibernate.search.develocity.util.MavenProperties;
 
@@ -50,6 +52,11 @@ public interface GoalMetadataProvider {
 
 		public void buildScanDeduplicatedValue(String key, String value) {
 			buildScanApi.executeOnce( key + value, ignored -> buildScanApi.value( key, value ) );
+		}
+
+		public void nested(String propertyName, Consumer<? super Context> action) {
+			metadataContext.nested( propertyName,
+					nestedMetadataContext -> action.accept( new Context( buildScanApi, nestedMetadataContext ) ) );
 		}
 	}
 }
