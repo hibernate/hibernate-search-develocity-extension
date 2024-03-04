@@ -1,6 +1,7 @@
 package org.hibernate.search.develocity.plugins;
 
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
@@ -11,6 +12,8 @@ import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
 public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 
 	private static final String SUREFIRE_ENVIRONMENT_VARIABLES = "environmentVariables";
+
+	private static final Pattern TEST_INDEXES_PATTERN = Pattern.compile( "(^|/)test-indexes($|/)" );
 
 	@Override
 	protected String getPluginName() {
@@ -56,10 +59,16 @@ public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 					value = "";
 				}
 				if ( value.startsWith( context.metadata().getSession().getExecutionRootDirectory() ) ) {
-					inputs.fileSet( keyForDevelocity, value, fileSet -> {
-						fileSet.normalizationStrategy(
-								MojoMetadataProvider.Context.FileSet.NormalizationStrategy.RELATIVE_PATH );
-					} );
+					if ( TEST_INDEXES_PATTERN.matcher( "test-indexes" ).find() ) {
+						// Lucene indexes used in tests -- we don't care about these.
+						inputs.ignore( keyForDevelocity );
+					}
+					else {
+						inputs.fileSet( keyForDevelocity, value, fileSet -> {
+							fileSet.normalizationStrategy(
+									MojoMetadataProvider.Context.FileSet.NormalizationStrategy.RELATIVE_PATH );
+						} );
+					}
 				}
 				else {
 					inputs.property( keyForDevelocity, value );
