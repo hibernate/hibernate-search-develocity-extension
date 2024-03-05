@@ -41,7 +41,9 @@ public final class BuildScanMetadata {
 	public static void addCompilerMetadata(GoalMetadataProvider.Context context) {
 		var buildScanApi = context.buildScan();
 		String compilerId = context.configuration().getString( "compilerId" );
-		if ( !Strings.isBlank( compilerId ) ) {
+		if ( !Strings.isBlank( compilerId )
+				// Yes it's weird but it can happen.
+				&& !"${maven.compiler.compilerId}".equals( compilerId ) ) {
 			buildScanApi.tag( "compiler-%s".formatted( compilerId ) );
 		}
 	}
@@ -58,7 +60,8 @@ public final class BuildScanMetadata {
 		}
 
 		String goal = context.metadata().getMojoExecution().getGoal();
-		context.buildScanDeduplicatedValue( "%s.%s.jdk".formatted( plugin, goal ), "Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
+		context.buildScanDeduplicatedValue( "%s.%s.jdk".formatted( plugin, goal ),
+				"Path: %s\nResolved version: %s".formatted( javaExecutable, javaVersion ) );
 	}
 
 	public static void addFailsafeMetadata(GoalMetadataProvider.Context context) {
