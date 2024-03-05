@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
+import org.hibernate.search.develocity.scan.BuildScanMetadata;
 import org.hibernate.search.develocity.util.JavaVersions;
 
 public class CompilerConfiguredPlugin extends SimpleConfiguredPlugin {
@@ -28,5 +29,6 @@ public class CompilerConfiguredPlugin extends SimpleConfiguredPlugin {
 					context.configuration().getBoolean( "skip" ),
 					JavaVersions::forJavacExecutable );
 		} );
+		BuildScanMetadata.addCompilerMetadata( context );
 	}
 }
