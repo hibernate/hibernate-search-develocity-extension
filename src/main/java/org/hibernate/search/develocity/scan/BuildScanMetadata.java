@@ -87,8 +87,8 @@ public final class BuildScanMetadata {
 					buildScanApi.tag( "h2" );
 				}
 				else {
-					addDockerfileShortImageRef( context,
-							"database/%s.Dockerfile".formatted( dbKind ), null );
+					addDockerfileMetadata( context,
+							"database/%s.Dockerfile".formatted( dbKind ), dbKind, null, false );
 				}
 			}
 		}
@@ -109,17 +109,22 @@ public final class BuildScanMetadata {
 				&& ( explicitBackend == null || "elasticsearch".equals( explicitBackend ) )
 				&& !context.properties().getBoolean( "test.elasticsearch.skip" ) ) {
 			var distribution = context.properties().getString( "test.elasticsearch.distribution" );
-			addDockerfileShortImageRef( context,
+			addDockerfileMetadata( context,
 					"search-backend/%s.Dockerfile".formatted( distribution ),
-					context.properties().getString( "test.elasticsearch.version" ) );
+					"elastic".equals( distribution ) ? "elasticsearch" : distribution,
+					context.properties().getString( "test.elasticsearch.version" ), true );
 		}
 	}
 
-	private static void addDockerfileShortImageRef(GoalMetadataProvider.Context context,
-			String dockerfileRelativePath, String versionOverride) {
+	private static void addDockerfileMetadata(GoalMetadataProvider.Context context,
+			String dockerfileRelativePath, String tag, String versionOverride, boolean tagVersion) {
 		var buildScanApi = context.buildScan();
 		var path = Path.of( context.metadata().getSession().getExecutionRootDirectory(),
 				"build/container", dockerfileRelativePath );
+		if ( tag != null ) {
+			// Tag without version
+			buildScanApi.tag( tag );
+		}
 		try {
 			String ref;
 			try ( var stream = Files.lines( path ) ) {
@@ -139,15 +144,19 @@ public final class BuildScanMetadata {
 			if ( !Strings.isBlank( versionOverride ) ) {
 				ref = ref.substring( 0, ref.lastIndexOf( ':' ) + 1 ) + versionOverride;
 			}
-			String shortImageRef = toShortImageRef( ref );
-			buildScanApi.tag( shortImageRef.replace( ':', '-' ) );
-			buildScanApi.value(
-					shortImageRef.substring( 0, shortImageRef.lastIndexOf( ':' ) ),
-					ref.substring( ref.lastIndexOf( ':' ) + 1 )
-			);
+			context.buildScanDeduplicatedValue( "Container", ref );
+
+			// Tag with version
+			if ( tag != null && tagVersion ) {
+				String shortImageRef = toShortImageRef( ref );
+				int colonIndex = shortImageRef.indexOf( ':' );
+				if ( colonIndex >= 0 ) {
+					buildScanApi.tag( tag + "-" + shortImageRef.substring( colonIndex + 1 ) );
+				}
+			}
 		}
 		catch (RuntimeException | IOException e) {
-			Log.warn( "Unable to add tag from Dockerfile at %s: %s".formatted( path, e.getMessage() ) );
+			Log.warn( "Unable to add metadata from Dockerfile at %s: %s".formatted( path, e.getMessage() ) );
 		}
 	}
 
