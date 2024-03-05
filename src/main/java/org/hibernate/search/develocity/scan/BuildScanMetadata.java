@@ -38,6 +38,14 @@ public final class BuildScanMetadata {
 		buildScanApi.tag( "hibernate-search" );
 	}
 
+	public static void addCompilerMetadata(GoalMetadataProvider.Context context) {
+		var buildScanApi = context.buildScan();
+		String compilerId = context.configuration().getString( "compilerId" );
+		if ( !Strings.isBlank( compilerId ) ) {
+			buildScanApi.tag( "compiler-%s".formatted( compilerId ) );
+		}
+	}
+
 	public static void addJavaExecutableVersion(GoalMetadataProvider.Context context,
 			String javaExecutable, String javaVersion,
 			boolean canCacheExactVersion) {
