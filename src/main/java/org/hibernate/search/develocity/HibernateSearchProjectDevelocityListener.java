@@ -11,7 +11,6 @@ import org.hibernate.search.develocity.plugins.FailsafeConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.ForbiddenApisConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.FormatterConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.ImpsortConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.SourceConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.SurefireConfiguredPlugin;
 import org.hibernate.search.develocity.scan.BuildScanMetadata;
 
@@ -39,7 +38,6 @@ public class HibernateSearchProjectDevelocityListener implements GradleEnterpris
                 new SurefireConfiguredPlugin(),
                 new FailsafeConfiguredPlugin(),
                 new EnforcerConfiguredPlugin(),
-                new SourceConfiguredPlugin(),
                 new FormatterConfiguredPlugin(),
                 new ImpsortConfiguredPlugin(),
                 new ForbiddenApisConfiguredPlugin()
