@@ -6,11 +6,8 @@ import org.apache.maven.execution.MavenSession;
 import org.codehaus.plexus.component.annotations.Component;
 import org.hibernate.search.develocity.normalization.Normalization;
 import org.hibernate.search.develocity.plugins.CompilerConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.EnforcerConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.FailsafeConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.ForbiddenApisConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.FormatterConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.ImpsortConfiguredPlugin;
 import org.hibernate.search.develocity.plugins.SurefireConfiguredPlugin;
 import org.hibernate.search.develocity.scan.BuildScanMetadata;
 
@@ -37,9 +34,6 @@ public class HibernateSearchProjectDevelocityListener implements GradleEnterpris
                 new CompilerConfiguredPlugin(),
                 new SurefireConfiguredPlugin(),
                 new FailsafeConfiguredPlugin(),
-                new EnforcerConfiguredPlugin(),
-                new FormatterConfiguredPlugin(),
-                new ImpsortConfiguredPlugin(),
                 new ForbiddenApisConfiguredPlugin()
         );
 
