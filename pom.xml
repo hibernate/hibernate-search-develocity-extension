@@ -25,7 +25,7 @@
         <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-shade-plugin.version>3.5.2</maven-shade-plugin.version>
 
         <!-- Repository Deployment URLs -->
