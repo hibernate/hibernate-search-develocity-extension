@@ -14,7 +14,7 @@ import org.hibernate.search.develocity.util.JavaVersions;
 import org.hibernate.search.develocity.util.MavenProperties;
 import org.hibernate.search.develocity.util.Strings;
 
-import com.gradle.maven.extension.api.scan.BuildScanApi;
+import com.gradle.develocity.agent.maven.api.scan.BuildScanApi;
 
 public final class BuildScanMetadata {
 

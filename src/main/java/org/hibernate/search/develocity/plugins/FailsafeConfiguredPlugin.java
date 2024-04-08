@@ -5,7 +5,7 @@ import java.util.Map;
 import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.scan.BuildScanMetadata;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
 
 public class FailsafeConfiguredPlugin extends SurefireConfiguredPlugin {
 

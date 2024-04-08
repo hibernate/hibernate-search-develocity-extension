@@ -8,8 +8,8 @@ import java.util.function.Function;
 import org.hibernate.search.develocity.scan.BuildScanMetadata;
 import org.hibernate.search.develocity.util.JavaVersions;
 
-import com.gradle.maven.extension.api.GradleEnterpriseApi;
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
+import com.gradle.develocity.agent.maven.api.DevelocityApi;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
@@ -17,8 +17,8 @@ import org.apache.maven.project.MavenProject;
 public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
 
     @Override
-    public void configureBuildCache(GradleEnterpriseApi gradleEnterpriseApi, MavenSession mavenSession) {
-        gradleEnterpriseApi.getBuildCache().registerMojoMetadataProvider(context -> {
+    public void configureBuildCache(DevelocityApi develocityApi, MavenSession mavenSession) {
+		develocityApi.getBuildCache().registerMojoMetadataProvider(context -> {
             context.withPlugin(getPluginName(), () -> {
                 if (!isBuildCacheEnabled(context.getProject())) {
                     Log.debug(getPluginName(), "Build cache is disabled.");
@@ -33,7 +33,7 @@ public abstract class SimpleConfiguredPlugin implements ConfiguredPlugin {
 				for ( Entry<String, GoalMetadataProvider> goalMetadataProviderEntry : goalMetadataProviders.entrySet() ) {
 					if ( goalMetadataProviderEntry.getKey().equalsIgnoreCase( context.getMojoExecution().getGoal() ) ) {
 						goalMetadataProviderEntry.getValue()
-								.configure( new GoalMetadataProvider.Context( gradleEnterpriseApi.getBuildScan(), context ) );
+								.configure( new GoalMetadataProvider.Context( develocityApi.getBuildScan(), context ) );
 					}
 				}
             });

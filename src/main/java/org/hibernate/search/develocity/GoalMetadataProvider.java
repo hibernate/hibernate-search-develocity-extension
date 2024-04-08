@@ -13,8 +13,8 @@ import java.util.function.Consumer;
 import org.hibernate.search.develocity.util.MavenMojoExecutionConfig;
 import org.hibernate.search.develocity.util.MavenProperties;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
-import com.gradle.maven.extension.api.scan.BuildScanApi;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
+import com.gradle.develocity.agent.maven.api.scan.BuildScanApi;
 
 @FunctionalInterface
 public interface GoalMetadataProvider {
