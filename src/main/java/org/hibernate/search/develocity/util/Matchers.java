@@ -5,8 +5,8 @@ import java.nio.file.Path;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.project.MavenProject;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
-import com.gradle.maven.extension.api.cache.NormalizationProvider;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
+import com.gradle.develocity.agent.maven.api.cache.NormalizationProvider;
 
 public final class Matchers {
 

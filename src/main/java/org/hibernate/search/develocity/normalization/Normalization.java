@@ -1,6 +1,6 @@
 package org.hibernate.search.develocity.normalization;
 
-import com.gradle.maven.extension.api.cache.BuildCacheApi;
+import com.gradle.develocity.agent.maven.api.cache.BuildCacheApi;
 
 public final class Normalization {
 

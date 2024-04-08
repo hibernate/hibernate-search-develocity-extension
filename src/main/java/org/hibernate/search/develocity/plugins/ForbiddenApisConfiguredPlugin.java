@@ -6,7 +6,7 @@ import java.util.Map;
 import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
 
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;

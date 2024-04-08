@@ -7,7 +7,7 @@ import org.hibernate.search.develocity.GoalMetadataProvider;
 import org.hibernate.search.develocity.SimpleConfiguredPlugin;
 import org.hibernate.search.develocity.util.JavaVersions;
 
-import com.gradle.maven.extension.api.cache.MojoMetadataProvider;
+import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
 
 public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 
