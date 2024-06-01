@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <develocity-maven-extension.version>1.21</develocity-maven-extension.version>
+        <develocity-maven-extension.version>1.21.4</develocity-maven-extension.version>
         <maven-core.version>3.9.6</maven-core.version>
         <plexus-component.version>2.2.0</plexus-component.version>
         <sisu-inject.version>0.3.5</sisu-inject.version>
