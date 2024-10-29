@@ -1,4 +1,4 @@
-package org.hibernate.search.develocity.normalization;
+package org.hibernate.infra.develocity.normalization;
 
 import com.gradle.develocity.agent.maven.api.cache.BuildCacheApi;
 

@@ -1,12 +1,12 @@
-package org.hibernate.search.develocity;
+package org.hibernate.infra.develocity;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-import org.hibernate.search.develocity.scan.BuildScanMetadata;
-import org.hibernate.search.develocity.util.JavaVersions;
+import org.hibernate.infra.develocity.scan.BuildScanMetadata;
+import org.hibernate.infra.develocity.util.JavaVersions;
 
 import com.gradle.develocity.agent.maven.api.DevelocityApi;
 import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;

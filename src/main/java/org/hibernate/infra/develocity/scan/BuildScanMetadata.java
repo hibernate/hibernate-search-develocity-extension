@@ -1,6 +1,6 @@
-package org.hibernate.search.develocity.scan;
+package org.hibernate.infra.develocity.scan;
 
-import static org.hibernate.search.develocity.util.Strings.isBlank;
+import static org.hibernate.infra.develocity.util.Strings.isBlank;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,11 +8,11 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import org.hibernate.search.develocity.GoalMetadataProvider;
-import org.hibernate.search.develocity.Log;
-import org.hibernate.search.develocity.util.JavaVersions;
-import org.hibernate.search.develocity.util.MavenProperties;
-import org.hibernate.search.develocity.util.Strings;
+import org.hibernate.infra.develocity.GoalMetadataProvider;
+import org.hibernate.infra.develocity.Log;
+import org.hibernate.infra.develocity.util.JavaVersions;
+import org.hibernate.infra.develocity.util.MavenProperties;
+import org.hibernate.infra.develocity.util.Strings;
 
 import com.gradle.develocity.agent.maven.api.scan.BuildScanApi;
 

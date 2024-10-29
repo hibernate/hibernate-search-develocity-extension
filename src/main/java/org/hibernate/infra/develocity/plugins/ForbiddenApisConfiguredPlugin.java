@@ -1,10 +1,10 @@
-package org.hibernate.search.develocity.plugins;
+package org.hibernate.infra.develocity.plugins;
 
 import java.io.File;
 import java.util.Map;
 
-import org.hibernate.search.develocity.GoalMetadataProvider;
-import org.hibernate.search.develocity.SimpleConfiguredPlugin;
+import org.hibernate.infra.develocity.GoalMetadataProvider;
+import org.hibernate.infra.develocity.SimpleConfiguredPlugin;
 
 import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider.Context.FileSet.NormalizationStrategy;
 
