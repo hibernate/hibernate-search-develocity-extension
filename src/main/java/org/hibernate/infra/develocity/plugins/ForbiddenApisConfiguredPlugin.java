@@ -39,10 +39,10 @@ public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
             inputs.fileSet("classpathElements", fs -> fs.normalizationStrategy(NormalizationStrategy.COMPILE_CLASSPATH));
             inputs.fileSet("classesDirectory", fs -> fs.normalizationStrategy(NormalizationStrategy.COMPILE_CLASSPATH));
 
-            // for now, we push only one signature artifacts but we could explore the config if it was strictly necessary
-            File hibernateSearchBuildConfigArtifactFile = resolveHibernateSearchBuildConfigArtifact(context);
+            // for now, we push only one signature artifacts, but we could explore the config if it was strictly necessary
+            File buildConfigArtifactFile = resolveBuildConfigArtifact(context);
 
-            inputs.fileSet("hibernateSearchBuildConfig", hibernateSearchBuildConfigArtifactFile,
+            inputs.fileSet("buildConfigArtifact", buildConfigArtifactFile,
                     fs -> fs.normalizationStrategy(NormalizationStrategy.CLASSPATH));
 
             inputs.ignore("signaturesArtifacts", "projectRepos", "repoSession");
@@ -63,9 +63,20 @@ public class ForbiddenApisConfiguredPlugin extends SimpleConfiguredPlugin {
         });
     }
 
-    private static File resolveHibernateSearchBuildConfigArtifact(GoalMetadataProvider.Context context) {
-        Artifact hibernateSearchBuildConfigArtifact = new DefaultArtifact("org.hibernate.search",
-                "hibernate-search-build-config", "jar",
+    private static File resolveBuildConfigArtifact(GoalMetadataProvider.Context context) {
+        String groupId = context.metadata().getProject().getModel().getGroupId();
+        if ("org.hibernate.search".equals(groupId)) {
+            return resolveBuildConfigArtifact("org.hibernate.search", "hibernate-search-build-config", context);
+        } else if ("org.hibernate.validator".equals(groupId)) {
+            return resolveBuildConfigArtifact("org.hibernate.validator", "hibernate-validator-build-config", context);
+        } else {
+            throw new IllegalArgumentException("This project is not supported by the extension: %s:%s".formatted(groupId, context.metadata().getProject().getArtifactId()));
+        }
+
+    }
+
+    private static File resolveBuildConfigArtifact(String groupId, String artifactId, GoalMetadataProvider.Context context) {
+        Artifact hibernateSearchBuildConfigArtifact = new DefaultArtifact(groupId, artifactId, "jar",
                 context.metadata().getProject().getVersion());
         File hibernateSearchBuildConfigArtifactFile = context.metadata().getSession().getRepositorySession().getWorkspaceReader()
                 .findArtifact(hibernateSearchBuildConfigArtifact);
