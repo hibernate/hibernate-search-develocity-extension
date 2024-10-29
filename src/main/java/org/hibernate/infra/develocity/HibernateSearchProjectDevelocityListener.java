@@ -26,7 +26,7 @@ public class HibernateSearchProjectDevelocityListener implements DevelocityListe
         develocityApi.getBuildScan().getPublishing()
                 .onlyIf( BuildScanPublishing.PublishingContext::isAuthenticated );
 
-        BuildScanMetadata.addMainMetadata(develocityApi.getBuildScan());
+        BuildScanMetadata.addMainMetadata(develocityApi.getBuildScan(), mavenSession);
 
         Normalization.configureNormalization(develocityApi.getBuildCache());
 

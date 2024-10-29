@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
+import org.apache.maven.execution.MavenSession;
 import org.hibernate.infra.develocity.GoalMetadataProvider;
 import org.hibernate.infra.develocity.Log;
 import org.hibernate.infra.develocity.util.JavaVersions;
@@ -25,7 +26,7 @@ public final class BuildScanMetadata {
 	private BuildScanMetadata() {
 	}
 
-	public static void addMainMetadata(BuildScanApi buildScanApi) {
+	public static void addMainMetadata(BuildScanApi buildScanApi, MavenSession mavenSession) {
 		// Add mvn command line
 		final String mavenCommandLine = System.getenv( "MAVEN_CMD_LINE_ARGS" ) != null
 				? "mvn " + System.getenv(
@@ -34,9 +35,9 @@ public final class BuildScanMetadata {
 		if ( !isBlank( mavenCommandLine ) ) {
 			buildScanApi.value( "Maven command line", mavenCommandLine );
 		}
-
-		buildScanApi.tag( "hibernate-search" );
+		buildScanApi.tag(mavenSession.getTopLevelProject().getGroupId());
 	}
+
 
 	public static void addCompilerMetadata(GoalMetadataProvider.Context context) {
 		var buildScanApi = context.buildScan();
