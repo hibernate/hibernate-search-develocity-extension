@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.hibernate.search.develocity</groupId>
-    <artifactId>hibernate-search-develocity-extension</artifactId>
+    <groupId>org.hibernate.infra.develocity</groupId>
+    <artifactId>hibernate-develocity-maven-extension</artifactId>
     <packaging>jar</packaging>
     <version>2.0.1-SNAPSHOT</version>
-    <name>Hibernate Search Develocity extension</name>
-    <description>A Maven extension to configure the Develocity build cache for the Hibernate Search project</description>
-    <url>https://github.com/hibernate/hibernate-search-develocity-extension</url>
+    <name>Hibernate Develocity extension for Maven Projects</name>
+    <description>A Maven extension to configure the Develocity build cache for the Hibernate projects using Maven as a build tool.</description>
+    <url>https://github.com/hibernate/hibernate-develocity-maven-extension</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -192,15 +192,15 @@
     </distributionManagement>
 
     <scm>
-        <url>https://github.com/hibernate/hibernate-search-develocity-extension</url>
-        <connection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</connection>
-        <developerConnection>scm:git:git@github.com:hibernate/hibernate-search-develocity-extension.git</developerConnection>
+        <url>https://github.com/hibernate/hibernate-develocity-maven-extension</url>
+        <connection>scm:git:git@github.com:hibernate/hibernate-develocity-maven-extension.git</connection>
+        <developerConnection>scm:git:git@github.com:hibernate/hibernate-develocity-maven-extension.git</developerConnection>
       <tag>HEAD</tag>
   </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/hibernate/hibernate-search-develocity-extension/issues</url>
+        <url>https://github.com/hibernate/hibernate-develocity-maven-extension/issues</url>
     </issueManagement>
 
     <profiles>

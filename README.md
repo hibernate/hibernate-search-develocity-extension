@@ -1,6 +1,6 @@
 # Maven extension configuring the Develocity build cache configuration for the Hibernate Search project
 
-[![Version](https://img.shields.io/maven-central/v/org.hibernate.search.develocity/hibernate-search-develocity-extension?logo=apache-maven&style=for-the-badge)](https://central.sonatype.com/artifact/org.hibernate.search.develocity/hibernate-search-develocity-extension)
+[![Version](https://img.shields.io/maven-central/v/org.hibernate.infra.develocity/hibernate-develocity-maven-extension?logo=apache-maven&style=for-the-badge)](https://central.sonatype.com/artifact/org.hibernate.infra.develocity/hibernate-develocity-maven-extension)
 
 ## About
 
