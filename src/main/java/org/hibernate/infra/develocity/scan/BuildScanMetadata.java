@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.regex.Pattern;
 
 import org.apache.maven.execution.MavenSession;
+import org.apache.maven.model.Profile;
 import org.hibernate.infra.develocity.GoalMetadataProvider;
 import org.hibernate.infra.develocity.Log;
 import org.hibernate.infra.develocity.util.JavaVersions;
@@ -69,54 +70,80 @@ public final class BuildScanMetadata {
 		var buildScanApi = context.buildScan();
 
 		var project = context.metadata().getProject();
-		boolean dependsOnOrm = false;
-		boolean dependsOnLucene = false;
-		boolean dependsOnElasticsearch = false;
-		var artifactFilter = context.configuration().getFailsafeClasspathFilter();
-		for ( var dependency : project.getArtifacts() ) {
-			if ( !artifactFilter.include( dependency ) ) {
-				continue;
-			}
-			var artifactId = dependency.getArtifactId();
-			dependsOnOrm = dependsOnOrm || artifactId.contains( "mapper-orm" );
-			dependsOnLucene = dependsOnLucene || artifactId.contains( "backend-lucene" );
-			dependsOnElasticsearch = dependsOnElasticsearch || artifactId.contains( "backend-elasticsearch" );
-		}
-
-		if ( dependsOnOrm ) {
-			var dbKind = context.properties().getString( "test.database.run.kind" );
-			if ( !Strings.isBlank( dbKind ) ) {
-				if ( dbKind.equals( "h2" ) ) {
-					// H2 doesn't use containers
-					buildScanApi.tag( "h2" );
+		if ("org.hibernate.search".equals(project.getGroupId())) {
+			boolean dependsOnOrm = false;
+			boolean dependsOnLucene = false;
+			boolean dependsOnElasticsearch = false;
+			var artifactFilter = context.configuration().getFailsafeClasspathFilter();
+			for (var dependency : project.getArtifacts()) {
+				if (!artifactFilter.include(dependency)) {
+					continue;
 				}
-				else {
-					addDockerfileMetadata( context,
-							"database/%s.Dockerfile".formatted( dbKind ), dbKind, null, false );
+				var artifactId = dependency.getArtifactId();
+				dependsOnOrm = dependsOnOrm || artifactId.contains("mapper-orm");
+				dependsOnLucene = dependsOnLucene || artifactId.contains("backend-lucene");
+				dependsOnElasticsearch = dependsOnElasticsearch || artifactId.contains("backend-elasticsearch");
+			}
+
+			if (dependsOnOrm) {
+				var dbKind = context.properties().getString("test.database.run.kind");
+				if (!Strings.isBlank(dbKind)) {
+					if (dbKind.equals("h2")) {
+						// H2 doesn't use containers
+						buildScanApi.tag("h2");
+					} else {
+						addDockerfileMetadata(context,
+								"database/%s.Dockerfile".formatted(dbKind), dbKind, null, false);
+					}
 				}
 			}
-		}
 
-		String explicitBackend = context.configuration()
-				.getFailsafeSystemProperty( "org.hibernate.search.integrationtest.backend.type" );
-		if ( Strings.isBlank( explicitBackend ) ) {
-			explicitBackend = null;
-		}
+			String explicitBackend = context.configuration()
+					.getFailsafeSystemProperty("org.hibernate.search.integrationtest.backend.type");
+			if (Strings.isBlank(explicitBackend)) {
+				explicitBackend = null;
+			}
 
-		if ( dependsOnLucene
-				&& ( explicitBackend == null || "lucene".equals( explicitBackend ) )
-				&& !context.properties().getBoolean( "test.lucene.skip" ) ) {
-			buildScanApi.tag( "lucene" );
-		}
+			if (dependsOnLucene
+					&& (explicitBackend == null || "lucene".equals(explicitBackend))
+					&& !context.properties().getBoolean("test.lucene.skip")) {
+				buildScanApi.tag("lucene");
+			}
 
-		if ( dependsOnElasticsearch
-				&& ( explicitBackend == null || "elasticsearch".equals( explicitBackend ) )
-				&& !context.properties().getBoolean( "test.elasticsearch.skip" ) ) {
-			var distribution = context.properties().getString( "test.elasticsearch.distribution" );
-			addDockerfileMetadata( context,
-					"search-backend/%s.Dockerfile".formatted( distribution ),
-					"elastic".equals( distribution ) ? "elasticsearch" : distribution,
-					context.properties().getString( "test.elasticsearch.version" ), true );
+			if (dependsOnElasticsearch
+					&& (explicitBackend == null || "elasticsearch".equals(explicitBackend))
+					&& !context.properties().getBoolean("test.elasticsearch.skip")) {
+				var distribution = context.properties().getString("test.elasticsearch.distribution");
+				addDockerfileMetadata(context,
+						"search-backend/%s.Dockerfile".formatted(distribution),
+						"elastic".equals(distribution) ? "elasticsearch" : distribution,
+						context.properties().getString("test.elasticsearch.version"), true);
+			}
+		} else if (!"org.hibernate.validator".equals(project.getGroupId())) {
+			Log.warn("Project %s:%s is unknown, no specific Failsafe metadata added.".formatted(project.getGroupId(), project.getArtifactId()));
+		}
+	}
+
+	public static void addSurefireMetadata(GoalMetadataProvider.Context context) {
+		var buildScanApi = context.buildScan();
+		var project = context.metadata().getProject();
+		if ("org.hibernate.validator".equals(project.getGroupId())) {
+			if ("hibernate-validator-tck-runner".equals(project.getArtifactId())) {
+				project.getActiveProfiles().stream().map(Profile::getId)
+						.filter("local"::equals).findAny()
+						.ifPresent(id -> buildScanApi.tag("Standalone-TCK"));
+
+				project.getActiveProfiles().stream().map(Profile::getId)
+						.filter(id -> id.startsWith("incontainer")).findAny()
+						.ifPresent(id -> buildScanApi.tag("In-Container-TCK"));
+
+				project.getArtifacts().stream()
+						.filter(a -> "validation-tck-tests".equals(a.getArtifactId()))
+						.findAny()
+						.ifPresent(a -> buildScanApi.tag("Validation-TCK-%s".formatted(a.getVersion())));
+			}
+		} else if (!"org.hibernate.search".equals(project.getGroupId())) {
+			Log.warn("Project %s:%s is unknown, no specific Surefire metadata added.".formatted(project.getGroupId(), project.getArtifactId()));
 		}
 	}
 
