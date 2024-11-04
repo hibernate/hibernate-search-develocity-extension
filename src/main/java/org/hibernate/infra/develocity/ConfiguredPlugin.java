@@ -1,4 +1,4 @@
-package org.hibernate.search.develocity;
+package org.hibernate.infra.develocity;
 
 import org.apache.maven.execution.MavenSession;
 

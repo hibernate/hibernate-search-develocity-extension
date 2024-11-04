@@ -1,11 +1,12 @@
-package org.hibernate.search.develocity.plugins;
+package org.hibernate.infra.develocity.plugins;
 
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import org.hibernate.search.develocity.GoalMetadataProvider;
-import org.hibernate.search.develocity.SimpleConfiguredPlugin;
-import org.hibernate.search.develocity.util.JavaVersions;
+import org.hibernate.infra.develocity.GoalMetadataProvider;
+import org.hibernate.infra.develocity.SimpleConfiguredPlugin;
+import org.hibernate.infra.develocity.scan.BuildScanMetadata;
+import org.hibernate.infra.develocity.util.JavaVersions;
 
 import com.gradle.develocity.agent.maven.api.cache.MojoMetadataProvider;
 
@@ -35,6 +36,10 @@ public class SurefireConfiguredPlugin extends SimpleConfiguredPlugin {
 		} );
 
 		configureEnvironmentVariables(context);
+
+		if ( !isSkipped( context ) ) {
+			BuildScanMetadata.addSurefireMetadata( context );
+		}
 	}
 
 	// Develocity handles environment variables as a big blob by default,

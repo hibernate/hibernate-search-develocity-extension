@@ -1,16 +1,16 @@
-package org.hibernate.search.develocity;
+package org.hibernate.infra.develocity;
 
 import java.util.List;
 
 import com.gradle.develocity.agent.maven.api.scan.BuildScanPublishing;
 import org.apache.maven.execution.MavenSession;
 import org.codehaus.plexus.component.annotations.Component;
-import org.hibernate.search.develocity.normalization.Normalization;
-import org.hibernate.search.develocity.plugins.CompilerConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.FailsafeConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.ForbiddenApisConfiguredPlugin;
-import org.hibernate.search.develocity.plugins.SurefireConfiguredPlugin;
-import org.hibernate.search.develocity.scan.BuildScanMetadata;
+import org.hibernate.infra.develocity.normalization.Normalization;
+import org.hibernate.infra.develocity.plugins.CompilerConfiguredPlugin;
+import org.hibernate.infra.develocity.plugins.FailsafeConfiguredPlugin;
+import org.hibernate.infra.develocity.plugins.ForbiddenApisConfiguredPlugin;
+import org.hibernate.infra.develocity.plugins.SurefireConfiguredPlugin;
+import org.hibernate.infra.develocity.scan.BuildScanMetadata;
 
 import com.gradle.develocity.agent.maven.api.DevelocityApi;
 import com.gradle.develocity.agent.maven.api.DevelocityListener;
@@ -26,7 +26,7 @@ public class HibernateSearchProjectDevelocityListener implements DevelocityListe
         develocityApi.getBuildScan().getPublishing()
                 .onlyIf( BuildScanPublishing.PublishingContext::isAuthenticated );
 
-        BuildScanMetadata.addMainMetadata(develocityApi.getBuildScan());
+        BuildScanMetadata.addMainMetadata(develocityApi.getBuildScan(), mavenSession);
 
         Normalization.configureNormalization(develocityApi.getBuildCache());
 

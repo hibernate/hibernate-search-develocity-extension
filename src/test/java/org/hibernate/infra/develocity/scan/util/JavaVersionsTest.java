@@ -1,9 +1,8 @@
-package org.hibernate.search.develocity.scan.util;
+package org.hibernate.infra.develocity.scan.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.hibernate.search.develocity.scan.BuildScanMetadata;
-import org.hibernate.search.develocity.util.JavaVersions;
+import org.hibernate.infra.develocity.util.JavaVersions;
 
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

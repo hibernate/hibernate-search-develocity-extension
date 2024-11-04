@@ -1,4 +1,4 @@
-package org.hibernate.search.develocity.util;
+package org.hibernate.infra.develocity.util;
 
 import java.nio.file.Path;
 
