@@ -22,11 +22,13 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.release>17</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <nexus-staging-maven-plugin.version>1.7.0</nexus-staging-maven-plugin.version>
         <maven-javadoc-plugin.version>3.11.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-shade-plugin.version>3.6.0</maven-shade-plugin.version>
+        <version.gpg.plugin>3.2.7</version.gpg.plugin>
+
+        <gpg.sign.skip>true</gpg.sign.skip>
 
         <!-- Repository Deployment URLs -->
         <ossrh.releases.repo.id>ossrh</ossrh.releases.repo.id>
@@ -152,6 +154,25 @@
                     </transformers>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>${version.gpg.plugin}</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${gpg.sign.skip}</skip>
+                            <homedir>${env.RELEASE_GPG_HOMEDIR}</homedir>
+                            <bestPractices>true</bestPractices>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -206,18 +227,17 @@
     <profiles>
         <profile>
             <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <gpg.sign.skip>false</gpg.sign.skip>
+            </properties>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>${maven-release-plugin.version}</version>
-                        <configuration>
-                            <autoVersionSubmodules>true</autoVersionSubmodules>
-                            <tagNameFormat>@{project.version}</tagNameFormat>
-                            <localCheckout>true</localCheckout>
-                        </configuration>
-                    </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
