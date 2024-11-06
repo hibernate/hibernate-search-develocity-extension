@@ -3,7 +3,7 @@
     <groupId>org.hibernate.infra.develocity</groupId>
     <artifactId>hibernate-develocity-maven-extension</artifactId>
     <packaging>jar</packaging>
-    <version>3.0.1-SNAPSHOT</version>
+    <version>3.0.1.Final</version>
     <name>Hibernate Develocity extension for Maven Projects</name>
     <description>A Maven extension to configure the Develocity build cache for the Hibernate projects using Maven as a build tool.</description>
     <url>https://github.com/hibernate/hibernate-develocity-maven-extension</url>
